@@ -1,7 +1,10 @@
 language: csharp
 mono: none
 dotnet: 2.0.0
-script:
+
+install:
   - dotnet restore
+
+script:
   - dotnet build -c Release ./ClickHouse.Net.sln
   - dotnet test test/ClickHouse.Net.Tests/ClickHouse.Net.Tests.csproj

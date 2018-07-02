@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClickHouse.Net\ClickHouse.Net.csproj" />
+    <ProjectReference Include="..\..\src\ClickHouse.Net\ClickHouse.Net.csproj" />
   </ItemGroup>
 
 </Project>
