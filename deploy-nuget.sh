@@ -1,5 +1,5 @@
 ApiKey=$1
 Source=$2
 
-nuget pack ./ClickHouse.Net.nuspec -Verbosity detailed
-nuget push ./ClickHouse.Net.nupkg -Verbosity detailed -ApiKey $ApiKey -Source $Source
+dotnet pack -c Release --no-restore --no-build ./src/ClickHouse.Net/ClickHouse.Net.csproj -o ../../ -v detailed
+dotnet nuget push ./ClickHouse.Net.*.nupkg -v detailed -k $ApiKey -s $Source
