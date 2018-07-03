@@ -8,3 +8,10 @@ install:
 script:
   - dotnet build -c Release ./ClickHouse.Net.sln
   - dotnet test test/ClickHouse.Net.Tests/ClickHouse.Net.Tests.csproj
+
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: chmod +x ./deploy-nuget.sh && ./deploy-nuget.sh $NUGET_API_KEY $NUGET_SOURCE
+  on:
+    tags: true
