@@ -114,7 +114,15 @@ namespace ClickHouse.Net
         object[][] ExecuteSelectCommand(string commandText);
 
         void ExecuteInsertCommand<T>(string commandText, IEnumerable<T> bulk);
+
         IEnumerable<string> ReadAsStringsList(string commandText);
+
         void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings);
+
+        /// <summary>
+        /// Execute a query that returns no result (for example INSERT)
+        /// </summary>
+        /// <param name="commandText"></param>
+        void ExecuteNonQuery(string commandText);
     }
 }

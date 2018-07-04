@@ -76,7 +76,7 @@ namespace ClickHouse.Net
                 command.ExecuteNonQuery();
             }
         }
-
+        
         public IEnumerable<string> ReadAsStringsList(string commandText)
         {
             var result = new List<string>();
@@ -127,7 +127,7 @@ namespace ClickHouse.Net
 
         public void AddColumn(string tableName, Column column)
         {
-            Execute($"ALTER TABLE {tableName} ADD COLUMN {column} {column.After}");
+            ExecuteNonQuery($"ALTER TABLE {tableName} ADD COLUMN {column} {column.After}");
         }
 
         public void CreateColumnIfNotExists(string tableName, Column column)
@@ -140,17 +140,17 @@ namespace ClickHouse.Net
 
         public void CreateTableIfNotExists(Table table)
         {
-            Execute($"CREATE TABLE IF NOT EXISTS {table.Name} ({string.Join(',', table.Columns)}) ENGINE = {table.Engine}");
+            ExecuteNonQuery($"CREATE TABLE IF NOT EXISTS {table.Name} ({string.Join(',', table.Columns)}) ENGINE = {table.Engine}");
         }
 
         public void CreateDBIfNotExists(string databaseName)
         {
-            Execute($"CREATE DATABASE IF NOT EXISTS {databaseName}");
+            ExecuteNonQuery($"CREATE DATABASE IF NOT EXISTS {databaseName}");
         }
 
         public void CreateTableIfNotExistsAndPopulate(string tableName, string engine, string query)
         {
-            Execute($"CREATE TABLE IF NOT EXISTS {_connectionSettings.Database}.{tableName} ENGINE = {engine} AS {query}");
+            ExecuteNonQuery($"CREATE TABLE IF NOT EXISTS {_connectionSettings.Database}.{tableName} ENGINE = {engine} AS {query}");
         }
 
         public void CreateDBIfNotExists(Database database)
@@ -207,9 +207,8 @@ namespace ClickHouse.Net
             return (ulong?)command.ExecuteScalar() > 0;
         }
 
-        private void Execute(string commandText)
+        public void ExecuteNonQuery(string commandText)
         {
-            CheckConnection();
             using (var command = Connection.CreateCommand(commandText))
             {
                 ExecuteNonQuery(command);
