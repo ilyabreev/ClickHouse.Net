@@ -71,7 +71,6 @@ namespace ClickHouse.Net
         /// <returns></returns>
         object[][] ExecuteSelectCommand(string commandText);
 
-        void ExecuteInsertCommand<T>(string commandText, IEnumerable<T> bulk);
 
         IEnumerable<string> ReadAsStringsList(string commandText);
 
@@ -118,5 +117,14 @@ namespace ClickHouse.Net
         /// <param name="table">Object representing table structure</param>
         /// <param name="ifNotExists">Try to create table only if it does not exist</param>
         void CreateTable(Table table, bool ifNotExists = true);
+
+        /// <summary>
+        /// Bulk insert rows into table
+        /// </summary>
+        /// <typeparam name="T">Entity type</typeparam>
+        /// <param name="tableName">Table name</param>
+        /// <param name="columns">List of columns</param>
+        /// <param name="bulk">Data to insert</param>
+        void BulkInsert<T>(string tableName, IEnumerable<string> columns, IEnumerable<T> bulk);
     }
 }

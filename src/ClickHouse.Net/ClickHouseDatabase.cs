@@ -188,17 +188,10 @@ namespace ClickHouse.Net
             return rows.ToArray();
         }
 
-        public void ExecuteInsertCommand<T>(string commandText, IEnumerable<T> bulk)
+        public void BulkInsert<T>(string tableName, IEnumerable<string> columns, IEnumerable<T> bulk)
         {
-            Execute(cmd =>
-            {
-                cmd.Parameters.Add(new ClickHouseParameter
-                {
-                    ParameterName = "bulk",
-                    Value = bulk
-                });
-                cmd.ExecuteNonQuery();
-            }, commandText);
+            var cmd = _commandFormatter.CreateInsertCommandText(tableName, columns);
+            ExecuteBulkInsertCommand(cmd, bulk);
         }
 
         public void ExecuteNonQuery(string commandText)
@@ -209,6 +202,19 @@ namespace ClickHouse.Net
         public bool ExecuteExists(IDbCommand command)
         {
             return (ulong?) command.ExecuteScalar() > 0;
+        }
+
+        private void ExecuteBulkInsertCommand<T>(string commandText, IEnumerable<T> bulk)
+        {
+            Execute(cmd =>
+            {
+                cmd.Parameters.Add(new ClickHouseParameter
+                {
+                    ParameterName = "bulk",
+                    Value = bulk
+                });
+                cmd.ExecuteNonQuery();
+            }, commandText);
         }
 
         private void Execute(Action<ClickHouseCommand> body, string commandText)
@@ -240,7 +246,7 @@ namespace ClickHouse.Net
             }, commandText);
             return result;
         }
-        
+
         public void Dispose()
         {
             _connection?.Dispose();
