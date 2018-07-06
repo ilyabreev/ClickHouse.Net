@@ -1,14 +1,14 @@
-﻿namespace ClickHouse.Net
+﻿namespace ClickHouse.Net.Entities
 {
     public class Column
     {
         /// <summary>
-        /// Представляет столбец таблицы
+        /// Represents a column in ClickHouse table
         /// </summary>
-        /// <param name="name">Имя столбца</param>
-        /// <param name="type">Тип столбца</param>
-        /// <param name="defaultExpression">Выражение по умолчанию для столбца (если необходимо)</param>
-        /// <param name="after">Столбец, после которого добавить (Указывается только имя столбца)</param>
+        /// <param name="name">Column name</param>
+        /// <param name="type">Column type</param>
+        /// <param name="defaultExpression">Default expression</param>
+        /// <param name="after">Add column after column specified in this parameter</param>
         public Column(string name, string type, string defaultExpression = null, string after = null)
         {
             Name = name;

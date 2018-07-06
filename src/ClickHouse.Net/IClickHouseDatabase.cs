@@ -1,70 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using ClickHouse.Ado;
+using ClickHouse.Net.Entities;
 
 namespace ClickHouse.Net
 {
     /// <summary>
     /// Интерфес управления структурой базы данных
     /// </summary>
-    public interface IClickHouseDatabase : IDisposable
+    public interface IClickHouseDatabase
     {
         /// <summary>
-        /// Соединение
+        /// Create a new database
         /// </summary>
-        IDbConnection Connection { get; }
-        
-        /// <summary>
-        /// Добавить столбец к таблице
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="column"></param>
-        void AddColumn(string tableName, Column column);
-
-        /// <summary>
-        /// Проверяет наличие столбца в таблице и, в случае отсутствия, создает его
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="column"></param>
-        void CreateColumnIfNotExists(string tableName, Column column);
-
-        /// <summary>
-        /// Проверяет наличие базы данных и, в случае отсутствия, создает ее (вместе со всеми содержащимися в ней таблицами)
-        /// </summary>
-        /// <param name="database"></param>
-        void CreateDBIfNotExists(Database database);
+        /// <param name="db">Object representing database structure</param>
+        /// <param name="ifNotExists">Try to create a database only if it does not exist</param>
+        void CreateDatabase(Database db, bool ifNotExists = true);
 
         /// <summary>
         /// Проверяет наличие базы данных и, в случае отсутствия, создает ее
         /// </summary>
         /// <param name="databaseName"></param>
-        void CreateDBIfNotExists(string databaseName);
-
-        /// <summary>
-        /// Проверяет наличие таблицы и, в случае ее отсутствия, создает ее
-        /// </summary>
-        /// <param name="table"></param>
-        void CreateTableIfNotExists(Table table);
-
+        void CreateDatabase(string databaseName, bool ifNotExists = true);
+        
         /// <summary>
         /// Проверяет существование базы данных
         /// </summary>
         /// <param name="databaseName"></param>
         bool DatabaseExists(string databaseName);
-
-        /// <summary>
-        /// Проверяет существование столбца в таблице
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="columnName"></param>
-        bool ColumnExists(string tableName, string columnName);
-
-        /// <summary>
-        /// Открывает соединение с базой данных
-        /// </summary>
-        IClickHouseDatabase OpenConnection();
-
+        
         /// <summary>
         /// Проверяет существование таблицы в базе данных
         /// </summary>
@@ -92,19 +56,13 @@ namespace ClickHouse.Net
         /// <param name="currentName">Текущее название</param>
         /// <param name="newName">Новое название</param>
         void RenameTable(string currentName, string newName);
-
-        /// <summary>
-        /// Выполнить запрос, который возвращает строки
-        /// </summary>
-        /// <param name="command">запрос</param>
-        void ExecuteNonQuery(IDbCommand command);
-
+        
         /// <summary>
         /// Выполнить запрос, который возвращает число 
         /// </summary>
         /// <param name="command">запрос</param>
         /// <returns></returns>
-        bool ExecuteScalar(IDbCommand command);
+        bool ExecuteExists(IDbCommand command);
 
         /// <summary>
         /// Выборка строк из БД
@@ -117,12 +75,48 @@ namespace ClickHouse.Net
 
         IEnumerable<string> ReadAsStringsList(string commandText);
 
+        /// <summary>
+        /// Change current connection settings for database. It doesn't affect already opened connection.
+        /// </summary>
+        /// <param name="connectionSettings"></param>
         void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings);
 
         /// <summary>
-        /// Execute a query that returns no result (for example INSERT)
+        /// Open a database connection in order to execute multiple commands inside one connection
         /// </summary>
-        /// <param name="commandText"></param>
+        void Open();
+
+        /// <summary>
+        /// Close a current database connection
+        /// </summary>
+        void Close();
+
+        /// <summary>
+        /// Change current database if there is owned connection opened
+        /// </summary>
+        /// <param name="dbName"></param>
+        void ChangeDatabase(string dbName);
+
+        /// <summary>
+        /// Execute a query that produces no results
+        /// </summary>
+        /// <param name="commandText">Text of query</param>
         void ExecuteNonQuery(string commandText);
+
+        /// <summary>
+        /// Create a new table
+        /// </summary>
+        /// <param name="tableName">Table name</param>
+        /// <param name="columns">Collection of column definitions</param>
+        /// <param name="engine">Table engine</param>
+        /// <param name="ifNotExists">Try to create table only if it does not exist</param>
+        void CreateTable(string tableName, IEnumerable<string> columns, string engine, bool ifNotExists = true);
+
+        /// <summary>
+        /// Create a new table
+        /// </summary>
+        /// <param name="table">Object representing table structure</param>
+        /// <param name="ifNotExists">Try to create table only if it does not exist</param>
+        void CreateTable(Table table, bool ifNotExists = true);
     }
 }
