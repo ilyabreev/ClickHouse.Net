@@ -30,11 +30,10 @@ namespace ClickHouse.Net
         bool DatabaseExists(string databaseName);
         
         /// <summary>
-        /// Проверяет существование таблицы в базе данных
+        /// Check if table exists in current database
         /// </summary>
-        /// <param name="databaseName"></param>
-        /// <param name="tableName"></param>
-        bool TableExists(string databaseName, string tableName);
+        /// <param name="tableName">Table name</param>
+        bool TableExists(string tableName);
 
         /// <summary>
         /// Удалить таблицу если она существует

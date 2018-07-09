@@ -87,11 +87,11 @@ namespace ClickHouse.Net
             }, commandText);
         }
         
-        public bool TableExists(string databaseName, string tableName)
+        public bool TableExists(string tableName)
         {
             return Execute(cmd =>
             {
-                cmd.AddParameter("database", databaseName);
+                cmd.AddParameter("database", _connectionSettings.Database);
                 cmd.AddParameter("table", tableName);
                 return ExecuteExists(cmd);
             }, "SELECT COUNT(*) FROM system.tables WHERE database=@database AND name=@table");
