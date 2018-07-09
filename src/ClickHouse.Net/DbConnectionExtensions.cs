@@ -2,7 +2,7 @@
 
 namespace ClickHouse.Net
 {
-    public static class IDbConnectionExtensions
+    public static class DbConnectionExtensions
     {
         public static IDbCommand CreateCommand(this IDbConnection connection, string commandText)
         {

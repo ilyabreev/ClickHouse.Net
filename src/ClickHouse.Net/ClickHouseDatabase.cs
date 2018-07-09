@@ -12,17 +12,20 @@ namespace ClickHouse.Net
         private ClickHouseConnectionSettings _connectionSettings;
         private readonly IClickHouseCommandFormatter _commandFormatter;
         private readonly IClickHouseConnectionFactory _connectionFactory;
+        private readonly IClickHouseQueryLogger _queryLogger;
         private ClickHouseConnection _connection;
         private bool _ownsConnection;
 
         public ClickHouseDatabase(
             ClickHouseConnectionSettings connectionSettings,
             IClickHouseCommandFormatter commandFormatter, 
-            IClickHouseConnectionFactory connectionFactory)
+            IClickHouseConnectionFactory connectionFactory,
+            IClickHouseQueryLogger queryLogger)
         {
             _connectionSettings = connectionSettings;
             _commandFormatter = commandFormatter;
             _connectionFactory = connectionFactory;
+            _queryLogger = queryLogger;
         }
 
         public void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings)
@@ -204,21 +207,9 @@ namespace ClickHouse.Net
             return (ulong?) command.ExecuteScalar() > 0;
         }
 
-        private void ExecuteBulkInsertCommand<T>(string commandText, IEnumerable<T> bulk)
+        public void Execute(Action<ClickHouseCommand> body, string commandText)
         {
-            Execute(cmd =>
-            {
-                cmd.Parameters.Add(new ClickHouseParameter
-                {
-                    ParameterName = "bulk",
-                    Value = bulk
-                });
-                cmd.ExecuteNonQuery();
-            }, commandText);
-        }
-
-        private void Execute(Action<ClickHouseCommand> body, string commandText)
-        {
+            _queryLogger?.BeforeQuery();
             if (_ownsConnection)
             {
                 using (var command = _connection.CreateCommand(commandText))
@@ -235,6 +226,21 @@ namespace ClickHouse.Net
                     body(command);
                 }
             }
+
+            _queryLogger?.AfterQuery(commandText);
+        }
+
+        private void ExecuteBulkInsertCommand<T>(string commandText, IEnumerable<T> bulk)
+        {
+            Execute(cmd =>
+            {
+                cmd.Parameters.Add(new ClickHouseParameter
+                {
+                    ParameterName = "bulk",
+                    Value = bulk
+                });
+                cmd.ExecuteNonQuery();
+            }, commandText);
         }
 
         private T Execute<T>(Func<ClickHouseCommand, T> body, string commandText)
