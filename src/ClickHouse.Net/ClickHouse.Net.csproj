@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <Version>0.2.1</Version>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.3.0</Version>
     <Authors>ilyabreev</Authors>
     <Company>Sintek</Company>
     <PackageProjectUrl>https://github.com/ilyabreev/ClickHouse.Net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ilyabreev/ClickHouse.Net</RepositoryUrl>
-    <PackageTags>clickhouse net core</PackageTags>
+    <PackageTags>clickhouse net standard</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

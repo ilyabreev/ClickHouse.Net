@@ -107,7 +107,7 @@ namespace ClickHouse.Net
             Execute(cmd =>
             {
                 cmd.ExecuteNonQuery();
-            }, $"CREATE TABLE IF NOT EXISTS {tableName} ({string.Join(',', columns)}) ENGINE = {engine}");
+            }, $"CREATE TABLE IF NOT EXISTS {tableName} ({string.Join(",", columns)}) ENGINE = {engine}");
         }
 
         public void CreateTableIfNotExistsAndPopulate(string tableName, string engine, string query)

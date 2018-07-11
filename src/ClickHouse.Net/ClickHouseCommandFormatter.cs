@@ -6,7 +6,7 @@ namespace ClickHouse.Net
     {        
         public string CreateInsertCommandText(string tableName, IEnumerable<string> columns)
         {
-            return $@"INSERT INTO {tableName}({string.Join(',', columns)}) VALUES @bulk";
+            return $@"INSERT INTO {tableName}({string.Join(",", columns)}) VALUES @bulk";
         }
 
         public string Create(string subject, string rest, bool ifNotExists = true)
