@@ -14,14 +14,14 @@ namespace ClickHouse.Net
         /// Create a new database
         /// </summary>
         /// <param name="db">Object representing database structure</param>
-        /// <param name="ifNotExists">Try to create a database only if it does not exist</param>
-        void CreateDatabase(Database db, bool ifNotExists = true);
+        void CreateDatabase(Database db, CreateOptions options = null);
 
         /// <summary>
-        /// Проверяет наличие базы данных и, в случае отсутствия, создает ее
+        /// Create a new empty database
         /// </summary>
-        /// <param name="databaseName"></param>
-        void CreateDatabase(string databaseName, bool ifNotExists = true);
+        /// <param name="databaseName">database name</param>
+        /// <param name="options">create options</param>
+        void CreateDatabase(string databaseName, CreateOptions options = null);
         
         /// <summary>
         /// Проверяет существование базы данных
@@ -36,19 +36,12 @@ namespace ClickHouse.Net
         bool TableExists(string tableName);
 
         /// <summary>
-        /// Удалить таблицу если она существует
+        /// Drop a table
         /// </summary>
-        /// <param name="tableName">Имя таблицы</param>
-        void DeleteTableIfExists(string tableName);
-
-        /// <summary>
-        /// Создать таблице и заполнить ее данными по запросу query
-        /// </summary>
-        /// <param name="tableName">Название таблицы</param>
-        /// <param name="engine">Движок</param>
-        /// <param name="query">Запрос для заполнения данных таблицы</param>
-        void CreateTableIfNotExistsAndPopulate(string tableName, string engine, string query);
-
+        /// <param name="tableName">table name</param>
+        /// <param name="options">drop options</param>
+        void DropTable(string tableName, DropOptions options = null);
+        
         /// <summary>
         /// Переименовать таблицы
         /// </summary>
@@ -100,23 +93,7 @@ namespace ClickHouse.Net
         /// </summary>
         /// <param name="commandText">Text of query</param>
         void ExecuteNonQuery(string commandText);
-
-        /// <summary>
-        /// Create a new table
-        /// </summary>
-        /// <param name="tableName">Table name</param>
-        /// <param name="columns">Collection of column definitions</param>
-        /// <param name="engine">Table engine</param>
-        /// <param name="ifNotExists">Try to create table only if it does not exist</param>
-        void CreateTable(string tableName, IEnumerable<string> columns, string engine, bool ifNotExists = true);
-
-        /// <summary>
-        /// Create a new table
-        /// </summary>
-        /// <param name="table">Object representing table structure</param>
-        /// <param name="ifNotExists">Try to create table only if it does not exist</param>
-        void CreateTable(Table table, bool ifNotExists = true);
-
+        
         /// <summary>
         /// Bulk insert rows into table
         /// </summary>
@@ -125,5 +102,12 @@ namespace ClickHouse.Net
         /// <param name="columns">List of columns</param>
         /// <param name="bulk">Data to insert</param>
         void BulkInsert<T>(string tableName, IEnumerable<string> columns, IEnumerable<T> bulk);
+
+        /// <summary>
+        /// Create a new table
+        /// </summary>
+        /// <param name="table">table schema</param>
+        /// <param name="options">create options</param>
+        void CreateTable(Table table, CreateOptions options = null);
     }
 }

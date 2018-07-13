@@ -3,7 +3,7 @@
 namespace ClickHouse.Net.Entities
 {
     /// <summary>
-    /// Representing a table in ClickHouse database
+    /// Representing a table schema in ClickHouse database
     /// </summary>
     public class Table
     {
@@ -13,9 +13,14 @@ namespace ClickHouse.Net.Entities
         public string Name { get; set; }
 
         /// <summary>
-        /// List of table columns
+        /// List of table column schemas
         /// </summary>
         public List<Column> Columns { get; set; }
+
+        /// <summary>
+        /// SELECT query that represents table
+        /// </summary>
+        public string Select { get; set; }
 
         /// <summary>
         /// Table engine

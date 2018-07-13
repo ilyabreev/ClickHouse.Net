@@ -1,18 +1,40 @@
 ﻿using System.Collections.Generic;
+using ClickHouse.Net.Entities;
 
 namespace ClickHouse.Net
 {
     public interface IClickHouseCommandFormatter
     {
         /// <summary>
-        /// Создать команду для вставки данных
+        /// Compose a query that performs bulk insert
         /// </summary>
-        /// <param name="tableName">Имя таблицы, в которую необходимо выполнить вставку</param>
-        /// <param name="columns">Имена столбцов, в которые необходимо вставить данные</param>
+        /// <param name="tableName">table name</param>
+        /// <param name="columns">list of column names</param>
         /// <returns></returns>
-        string CreateInsertCommandText(string tableName, IEnumerable<string> columns);
+        string BulkInsert(string tableName, IEnumerable<string> columns);
+        
+        /// <summary>
+        /// Compose a query that creates a table
+        /// </summary>
+        /// <param name="table">table schema definition</param>
+        /// <param name="options">create options</param>
+        /// <returns></returns>
+        string CreateTable(Table table, CreateOptions options = null);
+        
+        /// <summary>
+        /// Compose a query that creates an empty database
+        /// </summary>
+        /// <param name="databaseName">database name</param>
+        /// <param name="options">create options</param>
+        /// <returns></returns>
+        string CreateDatabase(string databaseName, CreateOptions options = null);
 
-        string CreateDatabase(string dbName, bool ifNotExists = true);
-        string Create(string subject, string rest, bool ifNotExists = true);
+        /// <summary>
+        /// Compose a query that drops a table
+        /// </summary>
+        /// <param name="name">table name</param>
+        /// <param name="options">drop options</param>
+        /// <returns></returns>
+        string DropTable(string name, DropOptions options = null);
     }
 }

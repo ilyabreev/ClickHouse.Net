@@ -3,7 +3,7 @@
     public class Column
     {
         /// <summary>
-        /// Represents a column in ClickHouse table
+        /// Represents a column schema in ClickHouse table
         /// </summary>
         /// <param name="name">Column name</param>
         /// <param name="type">Column type</param>

@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using ClickHouse.Net.Entities;
+using Xunit;
 
 namespace ClickHouse.Net.Tests
 {
@@ -14,16 +15,33 @@ namespace ClickHouse.Net.Tests
         [Fact]
         public void Create_Insert_Command_Text()
         {
-            // arrange 
             var tableName = "testTable";
             var columns = new string[] { "column1", "column2", "column3" };
             var expectedCommandText = "INSERT INTO testTable(column1,column2,column3) VALUES @bulk";
 
-            // act
-            var result = _target.CreateInsertCommandText(tableName, columns);
+            var result = _target.BulkInsert(tableName, columns);
 
-            // assert
             Assert.Equal(expectedCommandText, result);
+        }
+
+        [Fact]
+        public void CreateDatabase_IfNotExists_Command_Text()
+        {
+            Assert.Equal("CREATE DATABASE IF NOT EXISTS Test", _target.CreateDatabase("Test"));
+        }
+
+        [Fact]
+        public void CreateDatabase_Command_Text()
+        {
+            Assert.Equal("CREATE DATABASE Test", _target.CreateDatabase("Test", new CreateOptions()
+            {
+                IfNotExists = false
+            }));
+        }
+
+        public void DropTable_IfNotExists_Command_Text()
+        {
+            Assert.Equal("DROP TABLE IF NOT EXISTS Test", _target.CreateDatabase("Test"));
         }
     }
 }
