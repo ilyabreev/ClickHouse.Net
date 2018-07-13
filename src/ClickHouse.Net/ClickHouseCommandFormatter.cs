@@ -17,7 +17,7 @@ namespace ClickHouse.Net
 
         public string DropTable(string name, DropOptions options = null)
         {
-            return Drop("TABLE", name);
+            return Drop("TABLE", name, options);
         }
         
         public string CreateDatabase(string databaseName, CreateOptions options = null)

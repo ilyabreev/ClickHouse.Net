@@ -39,9 +39,19 @@ namespace ClickHouse.Net.Tests
             }));
         }
 
-        public void DropTable_IfNotExists_Command_Text()
+        [Fact]
+        public void DropTable_IfExists_Command_Text()
         {
-            Assert.Equal("DROP TABLE IF NOT EXISTS Test", _target.CreateDatabase("Test"));
+            Assert.Equal("DROP TABLE IF EXISTS Test", _target.DropTable("Test"));
+        }
+
+        [Fact]
+        public void DropTable_Command_Text()
+        {
+            Assert.Equal("DROP TABLE Test", _target.DropTable("Test", new DropOptions()
+            {
+                IfExists = false
+            }));
         }
     }
 }
