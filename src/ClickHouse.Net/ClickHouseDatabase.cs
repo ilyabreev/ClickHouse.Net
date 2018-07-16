@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using ClickHouse.Ado;
 using ClickHouse.Net.Entities;
 
@@ -97,40 +96,25 @@ namespace ClickHouse.Net
             }, "SELECT COUNT(*) FROM system.tables WHERE database=@database AND name=@table");
         }
 
-        public void CreateTable(Table table, bool ifNotExists = true)
+        public void CreateTable(Table table, CreateOptions options = null)
         {
-            CreateTable(table.Name, table.Columns.Select(c => c.ToString()), table.Engine, ifNotExists);
+            var commandText = _commandFormatter.CreateTable(table, options);
+            Execute(cmd => { cmd.ExecuteNonQuery(); }, commandText);
         }
-
-        public void CreateTable(string tableName, IEnumerable<string> columns, string engine, bool ifNotExists = true)
+        
+        public void CreateDatabase(Database db, CreateOptions options = null)
         {
-            Execute(cmd =>
-            {
-                cmd.ExecuteNonQuery();
-            }, $"CREATE TABLE IF NOT EXISTS {tableName} ({string.Join(",", columns)}) ENGINE = {engine}");
-        }
-
-        public void CreateTableIfNotExistsAndPopulate(string tableName, string engine, string query)
-        {
-            Execute(cmd =>
-            {
-                cmd.ExecuteNonQuery();
-            }, $"CREATE TABLE IF NOT EXISTS {_connectionSettings.Database}.{tableName} ENGINE = {engine} AS {query}");
-        }
-
-        public void CreateDatabase(Database db, bool ifNotExists = true)
-        {
-            CreateDatabase(db.Name, ifNotExists);
+            CreateDatabase(db.Name, options);
             foreach (var table in db.Tables)
             {
                 ChangeDatabase(db.Name);
-                CreateTable(table, ifNotExists);
+                CreateTable(table, options);
             }
         }
 
-        public void CreateDatabase(string databaseName, bool ifNotExists = true)
+        public void CreateDatabase(string databaseName, CreateOptions options = null)
         {
-            var commandText = _commandFormatter.CreateDatabase(databaseName, ifNotExists);
+            var commandText = _commandFormatter.CreateDatabase(databaseName, options);
             Execute(cmd => { cmd.ExecuteNonQuery(); }, commandText);
         }
         
@@ -144,12 +128,13 @@ namespace ClickHouse.Net
             "SELECT COUNT(*) FROM system.databases WHERE name=@database");
         }
 
-        public void DeleteTableIfExists(string tableName)
+        public void DropTable(string tableName, DropOptions options = null)
         {
+            var commandText = _commandFormatter.DropTable(tableName, options);
             Execute(cmd =>
             {
                 cmd.ExecuteNonQuery();
-            }, $"DROP TABLE IF EXISTS {tableName}");
+            }, commandText);
         }
 
         public void RenameTable(string currentName, string newName)
@@ -193,8 +178,16 @@ namespace ClickHouse.Net
 
         public void BulkInsert<T>(string tableName, IEnumerable<string> columns, IEnumerable<T> bulk)
         {
-            var cmd = _commandFormatter.CreateInsertCommandText(tableName, columns);
-            ExecuteBulkInsertCommand(cmd, bulk);
+            var query = _commandFormatter.BulkInsert(tableName, columns);
+            Execute(cmd =>
+            {
+                cmd.Parameters.Add(new ClickHouseParameter
+                {
+                    ParameterName = "bulk",
+                    Value = bulk
+                });
+                cmd.ExecuteNonQuery();
+            }, query);
         }
 
         public void ExecuteNonQuery(string commandText)
@@ -228,19 +221,6 @@ namespace ClickHouse.Net
             }
 
             _queryLogger?.AfterQuery(commandText);
-        }
-
-        private void ExecuteBulkInsertCommand<T>(string commandText, IEnumerable<T> bulk)
-        {
-            Execute(cmd =>
-            {
-                cmd.Parameters.Add(new ClickHouseParameter
-                {
-                    ParameterName = "bulk",
-                    Value = bulk
-                });
-                cmd.ExecuteNonQuery();
-            }, commandText);
         }
 
         private T Execute<T>(Func<ClickHouseCommand, T> body, string commandText)
