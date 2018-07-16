@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ClickHouse.Net.Entities;
 
 namespace ClickHouse.Net
@@ -27,19 +29,19 @@ namespace ClickHouse.Net
 
         private string Table(Table table)
         {
-            return $"{table.Name} {TableSchema(table)} ENGINE = {table.Engine}";
+            return $"{table.Name}{TableSchema(table)} ENGINE = {table.Engine}{TableSelect(table)}";
         }
 
         private string TableSchema(Table table)
         {
-            if (!string.IsNullOrWhiteSpace(table.Select))
-            {
-                return table.Select;
-            }
-
-            return Columns(table.Columns);
+            return table.Columns != null && table.Columns.Any() ? $" {Columns(table.Columns)}" : string.Empty;
         }
 
+        private string TableSelect(Table table)
+        {
+            return string.IsNullOrWhiteSpace(table.Select) ? String.Empty : $" AS {table.Select}";
+        }
+        
         private string Columns(IEnumerable<Column> columns)
         {
             return $"({string.Join(", ", columns)})";

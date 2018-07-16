@@ -70,7 +70,18 @@ namespace ClickHouse.Net.Tests
                         new Column("Col2", "String")
                     }
                 }));
+        }
 
+        [Fact]
+        public void CreateTable_Select_Command_Text()
+        {
+            Assert.Equal("CREATE TABLE IF NOT EXISTS Test ENGINE = MergeTree(date, (date, Col1, Col2), 8192) AS SELECT date, Col1, Col2 FROM Test2",
+                _target.CreateTable(new Table()
+                {
+                    Engine = "MergeTree(date, (date, Col1, Col2), 8192)",
+                    Name = "Test",
+                    Select = "SELECT date, Col1, Col2 FROM Test2"
+                }));
         }
     }
 }
