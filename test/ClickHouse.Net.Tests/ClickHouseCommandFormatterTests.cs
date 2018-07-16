@@ -1,4 +1,5 @@
-﻿using ClickHouse.Net.Entities;
+﻿using System.Collections.Generic;
+using ClickHouse.Net.Entities;
 using Xunit;
 
 namespace ClickHouse.Net.Tests
@@ -52,6 +53,24 @@ namespace ClickHouse.Net.Tests
             {
                 IfExists = false
             }));
+        }
+
+        [Fact]
+        public void CreateTable_Columns_Command_Text()
+        {
+            Assert.Equal("CREATE TABLE IF NOT EXISTS Test (date Date, Col1 UInt8, Col2 String) ENGINE = MergeTree(date, (date, Col1, Col2), 8192)",
+                _target.CreateTable(new Table()
+                {
+                    Engine = "MergeTree(date, (date, Col1, Col2), 8192)",
+                    Name = "Test",
+                    Columns = new List<Column>()
+                    {
+                        new Column("date", "Date"),
+                        new Column("Col1", "UInt8"),
+                        new Column("Col2", "String")
+                    }
+                }));
+
         }
     }
 }

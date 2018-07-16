@@ -13,8 +13,8 @@
         {
             Name = name;
             Type = type;
-            DefaultExpression = defaultExpression;
-            After = !(string.IsNullOrEmpty(after)) ? $@"AFTER {after}" : string.Empty;
+            DefaultExpression = (!string.IsNullOrWhiteSpace(defaultExpression) ? " " + defaultExpression : string.Empty);
+            After = !(string.IsNullOrEmpty(after)) ? $@" AFTER {after}" : string.Empty;
         }
 
         public string Name { get; set; }
@@ -27,7 +27,7 @@
 
         public override string ToString()
         {
-            return $"{Name} {Type} {DefaultExpression} {After}";
+            return $"{Name} {Type}{DefaultExpression}{After}";
         }
     }
 }

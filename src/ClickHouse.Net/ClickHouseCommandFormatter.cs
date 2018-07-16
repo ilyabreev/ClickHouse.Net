@@ -42,7 +42,7 @@ namespace ClickHouse.Net
 
         private string Columns(IEnumerable<Column> columns)
         {
-            return $"({string.Join(",", columns)})";
+            return $"({string.Join(", ", columns)})";
         }
 
         private string Create(string subject, string rest, CreateOptions options = null)
