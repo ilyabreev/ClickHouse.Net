@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Reflection;
 using ClickHouse.Ado;
 using ClickHouse.Net.Entities;
 
@@ -145,21 +147,28 @@ namespace ClickHouse.Net
             }, $"RENAME TABLE {currentName} TO {newName}");
         }
 
-        public object[][] ExecuteSelectCommand(string commandText)
+        public object[][] ExecuteSelectCommand(string commandText, bool header = false)
         {
             var rows = new List<object[]>();
             Execute(cmd =>
             {
+                var headerAdded = false;
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.NextResult()) // Так как кликхаус может в одном запросе выдавать данные "по кускам" и это будет отдельный набор данных.
                     {
-                        var columnsNames = new List<string>();
-                        for (var i = 0; i < reader.FieldCount; i++)
+                        if (header && !headerAdded)
                         {
-                            columnsNames.Add(reader.GetName(i));
-                        }
+                            var columns = new List<string>();
+                            for (var i = 0; i < reader.FieldCount; i++)
+                            {
+                                columns.Add(reader.GetName(i));
+                            }
 
+                            rows.Add(columns.ToArray());
+                            headerAdded = true;
+                        }
+                        
                         while (reader.Read())
                         {
                             var row = new object[reader.FieldCount];
@@ -174,6 +183,73 @@ namespace ClickHouse.Net
                 }
             }, commandText);
             return rows.ToArray();
+        }
+
+        public IEnumerable<T> ExecuteQueryMapping<T>(string commandText, IEnumerable<ClickHouseParameter> parameters = null, IColumnNamingConvention convention = null) where T : new()
+        {
+            var data = new List<T>();
+            Execute(cmd =>
+            {
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        cmd.Parameters.Add(param);
+                    }
+                }
+                
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.NextResult())
+                    {
+                        while (reader.Read())
+                        {
+                            var obj = new T();
+                            for (var i = 0; i < reader.FieldCount; i++)
+                            {
+                                var propertyName = convention?.GetPropertyName(reader.GetName(i)) ?? reader.GetName(i);
+                                obj.GetType().GetProperty(propertyName)?.SetValue(obj, reader[i], null);
+                            }
+
+                            data.Add(obj);
+                        }
+                    }
+                }
+            }, commandText);
+            return data;
+        }
+
+        public Part[] SystemParts(string database)
+        {
+            return ExecuteQueryMapping<Part>(
+                "SELECT * FROM system.parts WHERE database = @database", 
+                new[]
+                {
+                    new ClickHouseParameter
+                    {
+                        ParameterName = "database",
+                        Value = database
+                    }
+                },
+                new UnderscoreNamingConvention()).ToArray();
+        }
+
+        public void FreezePartition(string table, string partition)
+        {
+            Execute(cmd =>
+            {
+                cmd.AddParameter("partition", partition);
+                cmd.ExecuteNonQuery();
+            }, $"ALTER TABLE {table} FREEZE PARTITION @partition");
+        }
+
+        public void BackupDatabase(string database)
+        {
+            var parts = SystemParts(database);
+            foreach (var part in parts)
+            {
+                FreezePartition(part.Table, part.Partition);
+            }
         }
 
         public void BulkInsert<T>(string tableName, IEnumerable<string> columns, IEnumerable<T> bulk)

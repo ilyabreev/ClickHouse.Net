@@ -61,7 +61,7 @@ namespace ClickHouse.Net
         /// </summary>
         /// <param name="commandText">запрос</param>
         /// <returns></returns>
-        object[][] ExecuteSelectCommand(string commandText);
+        object[][] ExecuteSelectCommand(string commandText, bool header = false);
 
 
         IEnumerable<string> ReadAsStringsList(string commandText);
@@ -109,5 +109,35 @@ namespace ClickHouse.Net
         /// <param name="table">table schema</param>
         /// <param name="options">create options</param>
         void CreateTable(Table table, CreateOptions options = null);
+
+        /// <summary>
+        /// Execute a query that maps its result to object collection
+        /// </summary>
+        /// <typeparam name="T">object type</typeparam>
+        /// <param name="commandText">query text</param>
+        /// <param name="parameters">list of parameters</param>
+        /// <param name="convention">column naming convention</param>
+        /// <returns></returns>
+        IEnumerable<T> ExecuteQueryMapping<T>(string commandText, IEnumerable<ClickHouseParameter> parameters = null, IColumnNamingConvention convention = null) where T : new();
+
+        /// <summary>
+        /// Get list of database partitions
+        /// </summary>
+        /// <param name="database">database name</param>
+        /// <returns></returns>
+        Part[] SystemParts(string database);
+
+        /// <summary>
+        /// Freeze a single partition of a table
+        /// </summary>
+        /// <param name="table">table name</param>
+        /// <param name="partition">partition</param>
+        void FreezePartition(string table, string partition);
+
+        /// <summary>
+        /// Backup a database
+        /// </summary>
+        /// <param name="database">database name</param>
+        void BackupDatabase(string database);
     }
 }
