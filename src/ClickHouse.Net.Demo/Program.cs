@@ -1,5 +1,9 @@
-﻿using System;
-using ClickHouse.Ado;
+﻿using ClickHouse.Ado;
+using ClickHouse.Net.Entities;
+using ClickHouse.Net.Tests;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ClickHouse.Net.Demo
 {
@@ -19,7 +23,52 @@ namespace ClickHouse.Net.Demo
                 Console.WriteLine($"Database test exists: {res}");
             }
 
+            var queryMappingSuccess = CastRawValuesToClassTypeProperties(db);
             db.Close();
+        }
+
+        public static bool CastRawValuesToClassTypeProperties(ClickHouseDatabase db)
+        {
+            if (db.TableExists("Test"))
+            {
+                db.DropTable("Test");
+            }
+
+            db.CreateTable(new Table
+            {
+                Engine = "MergeTree(date, (date, Id, Number, Cost), 8192)",
+                Name = "Test",
+                Columns = new List<Column>()
+                {
+                    new Column("date", "Date"),
+                    new Column("Id", "String"),
+                    new Column("Number", "Int32"),
+                    new Column("Cost", "Float64"),
+                    new Column("Name", "String"),
+                    new Column("Ushort", "UInt16"),
+                    new Column("Uint", "UInt32"),
+
+                }
+            });
+
+            var testItem = new TestDataItem3
+            {
+                Id = Guid.NewGuid(),
+                Number = -96,
+                Cost = 31,
+                Name = "Jon Skeet",
+                Ushort = 150,
+                Uint = 65536
+            };
+
+            var command = testItem.GetInsertCommand();
+            db.ExecuteNonQuery(command);
+
+            command = "SELECT Id, Number, Cost, Name, Ushort, Uint FROM Test";
+            var resultItem = db.ExecuteQueryMapping<TestDataItem3>(command, convention: new UnderscoreNamingConvention()).Single();
+
+            db.DropTable("Test");
+            return testItem.Equals(resultItem);
         }
     }
 }
