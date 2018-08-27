@@ -208,7 +208,7 @@ namespace ClickHouse.Net
                             for (var i = 0; i < reader.FieldCount; i++)
                             {
                                 var propertyName = convention?.GetPropertyName(reader.GetName(i)) ?? reader.GetName(i);
-                                obj.GetType().GetProperty(propertyName)?.SetValue(obj, reader[i], null);
+                                this.AssignProperty(obj, propertyName, reader[i]);
                             }
 
                             data.Add(obj);
