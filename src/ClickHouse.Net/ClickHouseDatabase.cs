@@ -309,6 +309,32 @@ namespace ClickHouse.Net
             return result;
         }
 
+        private static void AssignProperty(object item, string propertyName, object value)
+        {
+            var propertyInfo = item.GetType().GetProperty(propertyName);
+            var propertyType = propertyInfo?.PropertyType;
+
+            // Use most simple signature for Parse method with one argument.
+            var parseMethod = propertyType?.GetMethod("Parse", new[] { typeof(string) });
+
+            // If value is sting - assign it to property.
+            if (propertyType == typeof(string))
+            {
+                propertyInfo.SetValue(item, value, null);
+                return;
+            }
+
+            // If Type not declare Parse method.
+            if (parseMethod == null)
+            {
+                throw new InvalidOperationException("This Type not contain Parse method");
+            }
+
+            // Casting to string guarantees correct argument for Parse method.
+            var parsedValue = parseMethod.Invoke(null, new object[] { value.ToString() });
+            propertyInfo.SetValue(item, parsedValue, null);
+        }
+
         public void Dispose()
         {
             _connection?.Dispose();
