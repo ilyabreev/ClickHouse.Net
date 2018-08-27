@@ -309,7 +309,7 @@ namespace ClickHouse.Net
             return result;
         }
 
-        private static void AssignProperty(object item, string propertyName, object value)
+        private void AssignProperty(object item, string propertyName, object value)
         {
             var propertyInfo = item.GetType().GetProperty(propertyName);
             var propertyType = propertyInfo?.PropertyType;
@@ -330,8 +330,13 @@ namespace ClickHouse.Net
                 throw new InvalidOperationException("This Type not contain Parse method");
             }
 
+            // If receive null on value type property position , assign default value.
+            value = propertyType.IsValueType
+                ? value ?? Activator.CreateInstance(propertyType)
+                : value?.ToString();
+
             // Casting to string guarantees correct argument for Parse method.
-            var parsedValue = parseMethod.Invoke(null, new object[] { value.ToString() });
+            var parsedValue = parseMethod.Invoke(null, new object[] { value?.ToString() });
             propertyInfo.SetValue(item, parsedValue, null);
         }
 
