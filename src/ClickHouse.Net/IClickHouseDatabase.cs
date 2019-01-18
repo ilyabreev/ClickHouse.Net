@@ -139,5 +139,12 @@ namespace ClickHouse.Net
         /// </summary>
         /// <param name="database">database name</param>
         void BackupDatabase(string database);
+
+        /// <summary>
+        /// Get list of table columns
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        IEnumerable<Column> DescribeTable(string tableName);
     }
 }
