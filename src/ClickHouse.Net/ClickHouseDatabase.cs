@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using ClickHouse.Ado;
 using ClickHouse.Net.Entities;
 
@@ -220,6 +219,15 @@ namespace ClickHouse.Net
                 }
             }, commandText);
             return data;
+        }
+
+        public IEnumerable<Column> DescribeTable(string tableName)
+        {
+            var rows = ExecuteSelectCommand(_commandFormatter.DescribeTable(tableName));
+            foreach (var row in rows)
+            {
+                yield return new Column(row[0].ToString(), row[1].ToString(), $"{row[2]} {row[3]}");
+            }
         }
 
         public Part[] SystemParts(string database)

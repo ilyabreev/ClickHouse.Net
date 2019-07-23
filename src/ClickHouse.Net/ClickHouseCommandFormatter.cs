@@ -27,6 +27,11 @@ namespace ClickHouse.Net
             return Create("DATABASE", databaseName, options);
         }
 
+        public string DescribeTable(string name)
+        {
+            return $"DESCRIBE TABLE {name}";
+        }
+
         private string Table(Table table)
         {
             return $"{table.Name}{TableSchema(table)} ENGINE = {table.Engine}{TableSelect(table)}";

@@ -14,6 +14,12 @@ namespace ClickHouse.Net.Demo
     {
         static void Main(string[] args)
         {
+            var db = new ClickHouseDatabase(
+                new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=192.168.0.163;Port=9000;User=default;Password=;SocketTimeout=600000;Database=TeasersStat;"),
+                new ClickHouseCommandFormatter(),
+                new ClickHouseConnectionFactory(),
+                null);
+            /*
             var connectionString =
                 "Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=default;";
             var serviceCollection = new ServiceCollection();
@@ -37,6 +43,8 @@ namespace ClickHouse.Net.Demo
 
             var queryMappingSuccess = CastRawValuesToClassTypeProperties(db);
             db.Close();
+            */
+            var columns = db.DescribeTable("LastTeasersShows").ToArray();
         }
 
         public static bool CastRawValuesToClassTypeProperties(IClickHouseDatabase db)

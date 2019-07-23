@@ -36,5 +36,12 @@ namespace ClickHouse.Net
         /// <param name="options">drop options</param>
         /// <returns></returns>
         string DropTable(string name, DropOptions options = null);
+
+        /// <summary>
+        /// Compose a query DESCRIBE TABLE
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        string DescribeTable(string name);
     }
 }
