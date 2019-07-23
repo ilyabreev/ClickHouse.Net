@@ -15,18 +15,21 @@ namespace ClickHouse.Net
         private readonly IClickHouseConnectionFactory _connectionFactory;
         private readonly IClickHouseQueryLogger _queryLogger;
         private ClickHouseConnection _connection;
+        private IPropertyBinder _propertyBinder;
         private bool _ownsConnection;
 
         public ClickHouseDatabase(
             ClickHouseConnectionSettings connectionSettings,
             IClickHouseCommandFormatter commandFormatter, 
             IClickHouseConnectionFactory connectionFactory,
-            IClickHouseQueryLogger queryLogger)
+            IClickHouseQueryLogger queryLogger,
+            IPropertyBinder propertyBinder)
         {
             _connectionSettings = connectionSettings;
             _commandFormatter = commandFormatter;
             _connectionFactory = connectionFactory;
             _queryLogger = queryLogger;
+            _propertyBinder = propertyBinder;
         }
 
         public void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings)
@@ -208,7 +211,7 @@ namespace ClickHouse.Net
                             for (var i = 0; i < reader.FieldCount; i++)
                             {
                                 var propertyName = convention?.GetPropertyName(reader.GetName(i)) ?? reader.GetName(i);
-                                this.AssignProperty(obj, propertyName, reader[i]);
+                                _propertyBinder.BindProperty(obj, propertyName, reader[i]);
                             }
 
                             data.Add(obj);
@@ -308,38 +311,7 @@ namespace ClickHouse.Net
             }, commandText);
             return result;
         }
-
-        private void AssignProperty(object item, string propertyName, object value)
-        {
-            var propertyInfo = item.GetType().GetProperty(propertyName);
-            var propertyType = propertyInfo?.PropertyType;
-
-            // Use most simple signature for Parse method with one argument.
-            var parseMethod = propertyType?.GetMethod("Parse", new[] { typeof(string) });
-
-            // If value is sting - assign it to property.
-            if (propertyType == typeof(string))
-            {
-                propertyInfo.SetValue(item, value, null);
-                return;
-            }
-
-            // If Type not declare Parse method.
-            if (parseMethod == null)
-            {
-                throw new InvalidOperationException("This Type not contain Parse method");
-            }
-
-            // If receive null on value type property position , assign default value.
-            value = propertyType.IsValueType
-                ? value ?? Activator.CreateInstance(propertyType)
-                : value?.ToString();
-
-            // Casting to string guarantees correct argument for Parse method.
-            var parsedValue = parseMethod.Invoke(null, new object[] { value?.ToString() });
-            propertyInfo.SetValue(item, parsedValue, null);
-        }
-
+        
         public void Dispose()
         {
             _connection?.Dispose();

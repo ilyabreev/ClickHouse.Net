@@ -4,6 +4,9 @@ using ClickHouse.Net.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ClickHouse.Net.Demo
 {
@@ -11,11 +14,20 @@ namespace ClickHouse.Net.Demo
     {
         static void Main(string[] args)
         {
-            var db = new ClickHouseDatabase(
-                new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=default;"),
-                new ClickHouseCommandFormatter(),
-                new ClickHouseConnectionFactory(),
-                null);
+            var connectionString =
+                "Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=default;";
+            var serviceCollection = new ServiceCollection();
+            
+            /*Default PropertyBinder will be used*/
+            serviceCollection.AddClickHouse();
+            /* Uncomment this line for provide your custom realization of IPropertyBinder */
+            /*serviceCollection.AddClickHouse(new NotImplementedPropertyBinder());*/
+            
+            serviceCollection.AddTransient(p => new ClickHouseConnectionSettings(connectionString));
+            serviceCollection.AddTransient<ILoggerFactory, NullLoggerFactory>();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            var db = serviceProvider.GetRequiredService<IClickHouseDatabase>();
             db.Open();
             for (int i = 0; i < 10; i++)
             {
@@ -27,7 +39,7 @@ namespace ClickHouse.Net.Demo
             db.Close();
         }
 
-        public static bool CastRawValuesToClassTypeProperties(ClickHouseDatabase db)
+        public static bool CastRawValuesToClassTypeProperties(IClickHouseDatabase db)
         {
             if (db.TableExists("Test"))
             {
