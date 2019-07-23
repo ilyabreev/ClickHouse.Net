@@ -4,9 +4,6 @@ using ClickHouse.Net.Tests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ClickHouse.Net.Demo
 {
@@ -19,7 +16,7 @@ namespace ClickHouse.Net.Demo
                 new ClickHouseCommandFormatter(),
                 new ClickHouseConnectionFactory(),
                 null,
-                new DefaultPropertyBinder());
+                null);
             /*
             db.Open();
             db.BackupDatabase("TeasersStat");
@@ -28,6 +25,7 @@ namespace ClickHouse.Net.Demo
             var columns = db.DescribeTable("LastTeasersShows").ToArray();
 
             
+            /* Get data using default binder
             db.Open();
             for (int i = 0; i < 10; i++)
             {
@@ -35,10 +33,32 @@ namespace ClickHouse.Net.Demo
                 Console.WriteLine($"Database test exists: {res}");
             }
             
+            // Execute query and get result
+            var queryMappingSuccess = CastRawValuesToClassTypeProperties(db);
+            db.Close();
+            */
+            
+            /* Using custom binder */
+            /*CustomBinderDemo();*/
+        }
+
+        public static void CustomBinderDemo()
+        {
+            var db = new ClickHouseDatabase(
+                /*new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=192.168.0.163;Port=9000;User=default;Password=;SocketTimeout=600000;Database=TeasersStat;"),*/
+                new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=system;"),
+                new ClickHouseCommandFormatter(),
+                new ClickHouseConnectionFactory(),
+                null,
+                new NotImplementedPropertyBinder());
+            
+            db.Open();
+            
+            // Execute query and get result
             var queryMappingSuccess = CastRawValuesToClassTypeProperties(db);
             db.Close();
         }
-
+        
         public static bool CastRawValuesToClassTypeProperties(IClickHouseDatabase db)
         {
             if (db.TableExists("Test"))
