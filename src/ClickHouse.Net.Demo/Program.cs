@@ -18,33 +18,25 @@ namespace ClickHouse.Net.Demo
                 new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=192.168.0.163;Port=9000;User=default;Password=;SocketTimeout=600000;Database=TeasersStat;"),
                 new ClickHouseCommandFormatter(),
                 new ClickHouseConnectionFactory(),
-                null);
+                null,
+                new DefaultPropertyBinder());
             /*
-            var connectionString =
-                "Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=default;";
-            var serviceCollection = new ServiceCollection();
-            
-            /*Default PropertyBinder will be used*/
-            serviceCollection.AddClickHouse();
-            /* Uncomment this line for provide your custom realization of IPropertyBinder */
-            /*serviceCollection.AddClickHouse(new NotImplementedPropertyBinder());*/
-            
-            serviceCollection.AddTransient(p => new ClickHouseConnectionSettings(connectionString));
-            serviceCollection.AddTransient<ILoggerFactory, NullLoggerFactory>();
-            var serviceProvider = serviceCollection.BuildServiceProvider();
+            db.Open();
+            db.BackupDatabase("TeasersStat");
+            db.Close();
+            */
+            var columns = db.DescribeTable("LastTeasersShows").ToArray();
 
-            var db = serviceProvider.GetRequiredService<IClickHouseDatabase>();
+            
             db.Open();
             for (int i = 0; i < 10; i++)
             {
                 var res = db.DatabaseExists("test");
                 Console.WriteLine($"Database test exists: {res}");
             }
-
+            
             var queryMappingSuccess = CastRawValuesToClassTypeProperties(db);
             db.Close();
-            */
-            var columns = db.DescribeTable("LastTeasersShows").ToArray();
         }
 
         public static bool CastRawValuesToClassTypeProperties(IClickHouseDatabase db)
