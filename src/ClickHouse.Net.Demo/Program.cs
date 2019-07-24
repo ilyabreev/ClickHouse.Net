@@ -16,7 +16,7 @@ namespace ClickHouse.Net.Demo
                 new ClickHouseCommandFormatter(),
                 new ClickHouseConnectionFactory(),
                 null,
-                null);
+                new DefaultPropertyBinder());
             /*
             db.Open();
             db.BackupDatabase("TeasersStat");
@@ -45,7 +45,6 @@ namespace ClickHouse.Net.Demo
         public static void CustomBinderDemo()
         {
             var db = new ClickHouseDatabase(
-                /*new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=192.168.0.163;Port=9000;User=default;Password=;SocketTimeout=600000;Database=TeasersStat;"),*/
                 new ClickHouseConnectionSettings("Compress=True;CheckCompressedHash=False;Compressor=lz4;Host=localhost;Port=9000;User=default;Password=;SocketTimeout=600000;Database=system;"),
                 new ClickHouseCommandFormatter(),
                 new ClickHouseConnectionFactory(),

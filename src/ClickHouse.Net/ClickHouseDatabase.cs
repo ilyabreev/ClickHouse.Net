@@ -28,7 +28,7 @@ namespace ClickHouse.Net
             _commandFormatter = commandFormatter;
             _connectionFactory = connectionFactory;
             _queryLogger = queryLogger;
-            _propertyBinder = propertyBinder ?? new DefaultPropertyBinder();
+            _propertyBinder = propertyBinder;
         }
 
         public void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings)
