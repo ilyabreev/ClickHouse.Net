@@ -14,6 +14,7 @@ namespace ClickHouse.Net
             services.AddTransient<IClickHouseQueryLogger, ClickHouseQueryLogger>();
             services.AddTransient<IClickHouseCommandFormatter, ClickHouseCommandFormatter>();
             services.AddTransient<IClickHouseDataFormatter, ClickHouseDataFormatter>();
+            services.AddSingleton<IPropertyBinder, DefaultPropertyBinder>();
         }
     }
 }

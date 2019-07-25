@@ -14,18 +14,21 @@ namespace ClickHouse.Net
         private readonly IClickHouseConnectionFactory _connectionFactory;
         private readonly IClickHouseQueryLogger _queryLogger;
         private ClickHouseConnection _connection;
+        private IPropertyBinder _propertyBinder;
         private bool _ownsConnection;
 
         public ClickHouseDatabase(
             ClickHouseConnectionSettings connectionSettings,
             IClickHouseCommandFormatter commandFormatter, 
             IClickHouseConnectionFactory connectionFactory,
-            IClickHouseQueryLogger queryLogger)
+            IClickHouseQueryLogger queryLogger,
+            IPropertyBinder propertyBinder)
         {
             _connectionSettings = connectionSettings;
             _commandFormatter = commandFormatter;
             _connectionFactory = connectionFactory;
             _queryLogger = queryLogger;
+            _propertyBinder = propertyBinder;
         }
 
         public void ChangeConnectionSettings(ClickHouseConnectionSettings connectionSettings)
@@ -207,7 +210,7 @@ namespace ClickHouse.Net
                             for (var i = 0; i < reader.FieldCount; i++)
                             {
                                 var propertyName = convention?.GetPropertyName(reader.GetName(i)) ?? reader.GetName(i);
-                                obj.GetType().GetProperty(propertyName)?.SetValue(obj, reader[i], null);
+                                _propertyBinder.BindProperty(obj, propertyName, reader[i]);
                             }
 
                             data.Add(obj);
@@ -316,7 +319,7 @@ namespace ClickHouse.Net
             }, commandText);
             return result;
         }
-
+        
         public void Dispose()
         {
             _connection?.Dispose();
