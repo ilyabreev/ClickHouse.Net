@@ -94,7 +94,7 @@ namespace ClickHouse.Net
         {
             return Execute(cmd =>
             {
-                cmd.AddParameter("database", _connectionSettings.Database);
+                cmd.AddParameter("database", _connection.Database);
                 cmd.AddParameter("table", tableName);
                 return ExecuteExists(cmd);
             }, "SELECT COUNT(*) FROM system.tables WHERE database=@database AND name=@table");
